@@ -1,14 +1,13 @@
-library(gamlss)
-#library(DiscreteDists)
 
-# En la distribucion HYPERPO
-# mu > 0,     por tanto usaremos funcion de enlace log
-# sigma > 0,  por tanto usaremos funcion de enlace log
+library(gamlss)
+library(DiscreteDists)
+
+# In the HYPERPO distribution
+# mu > 0, so we"ll use the log link function
+# sigma > 0, so we"ll use the log link function
 
 # The parameters ----------------------------------------------------------
-# Los siguientes son los valores de los betas para el modelo de regresion
-# debemos chequear que esos numeros den valores correctos de mu y sigma
-# no podemos asignar numeros a la loca
+# The next values correspond to the true betas in the regression model
 
 true_b0_mu <- 1.21   # intercept for mu
 true_b1_mu <- -3.0   # slope for mu
@@ -17,7 +16,7 @@ true_g1_si <- -2.0   # slope for sigma
 
 # Useful functions to the simulation study --------------------------------
 
-# Funcion para obtener mu_hat y sigma_hat para un valor fijo de n
+# Function to obtain beta_hat for a fixed value of n
 simul_one <- function(size) {
   x1 <- runif(n=size)
   x2 <- runif(n=size)
@@ -25,12 +24,12 @@ simul_one <- function(size) {
   sigma <- exp(true_g0_si + true_g1_si * x2)
   y <- rHYPERPO(n=size, mu=mu, sigma=sigma)
   mod <- NULL
-  mod <- try(gamlss(y~x1, sigma.fo=~x2, family='HYPERPO',
+  mod <- try(gamlss(y~x1, sigma.fo=~x2, family="HYPERPO",
                     control=gamlss.control(n.cyc=2500, trace=FALSE)))
   if (class(mod)[1] == "try-error")
     res <- rep(NA, 4)
   else
-    res <- c(coef(mod, what='mu'), coef(mod, what='sigma'))
+    res <- c(coef(mod, what="mu"), coef(mod, what="sigma"))
   res
 }
 
@@ -38,16 +37,15 @@ simul_one <- function(size) {
 
 library("parSim")
 
-# Instruction to simulate type I
+# Instruction to simulate 
 parSim(
   ### SIMULATION CONDITIONS
-
   n = c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000),
   
-  reps = 500,                    # Repetitions
-  write = TRUE,                  # Writing to a file
-  name = "simul_with_cov_08",    # Name of the file
-  nCores = 2,                    # Number of cores to use
+  reps = 80,                              # Repetitions
+  write = TRUE,                           # Writing to a file
+  name = "Simulations/simul_with_cov_03", # Name of the file
+  nCores = 1,                             # Number of cores to use
   
   expression = {
     res <- simul_one(size=n)
@@ -65,18 +63,13 @@ parSim(
   }
 )
 
-# Plots -------------------------------------------------------------------
-
-dt1 <- read.table('simul_with_cov_01.txt', header=TRUE)
-dt2 <- read.table('simul_with_cov_02.txt', header=TRUE)
-dt3 <- read.table('simul_with_cov_03.txt', header=TRUE)
-dt4 <- read.table('simul_with_cov_04.txt', header=TRUE)
-dt5 <- read.table('simul_with_cov_05.txt', header=TRUE)
-dt6 <- read.table('simul_with_cov_06.txt', header=TRUE)
-dt7 <- read.table('simul_with_cov_07.txt', header=TRUE)
-dt8 <- read.table('simul_with_cov_08.txt', header=TRUE)
-
-dt <- rbind(dt1, dt2, dt3, dt4, dt5, dt6, dt7, dt8)
+# To load the results -----------------------------------------------------
+archivos <- list.files(pattern = "^simul_with_cov.*\\.txt$", 
+                       path="Simulations",
+                       full.names = TRUE)
+lista_datos <- lapply(archivos, read.table, header = TRUE, 
+                      sep = "", stringsAsFactors = FALSE)
+datos <- do.call(rbind, lista_datos)
 
 library(dplyr)
 library(tidyr)
@@ -84,19 +77,19 @@ library(ggplot2)
 library(gridExtra)
 
 # Numero de NA por cada n
-dt |> 
+datos |> 
   select(n, b0_mu_hat) |> 
   group_by(n) |> 
   summarise_all(~ sum(is.na(.)))
 
 # Numero de observaciones por cada n
-num <- dt %>% group_by(n) %>% count()
+num <- datos %>% group_by(n) %>% count()
 num
 mean(num$nn)
 min(num$nn)
 
-# Para obtener la metricas
-res <- dt %>% 
+# To obtain the metrics mean and MSE
+res <- datos %>% 
   select(!errorMessage) %>%
   drop_na() %>% 
   group_by(n) %>% 
@@ -107,7 +100,8 @@ res <- dt %>%
             mse_b0_mu=mean((true_b0_mu - b0_mu_hat)^2, trim=0.15), 
             mse_b1_mu=mean((true_b1_mu - b1_mu_hat)^2, trim=0.15),
             mse_b0_si=mean((true_g0_si - g0_si_hat)^2, trim=0.15), 
-            mse_b1_si=mean((true_g1_si - g1_si_hat)^2, trim=0.15))
+            mse_b1_si=mean((true_g1_si - g1_si_hat)^2, trim=0.15),
+            nobs=n())
 
 # Mean -----------------------------------------------------
 p1 <- ggplot(data=res, aes(x=n, y=mean_b0_mu)) + 
@@ -115,32 +109,32 @@ p1 <- ggplot(data=res, aes(x=n, y=mean_b0_mu)) +
   labs(x="n", y=expression(hat(beta)[0]), 
        title=expression("Mean for the intercept in" ~ mu)) +
   #ylim(true_b0_mu-2.0, true_b0_mu+2.0) +
-  geom_line(y=true_b0_mu, col='red', lty='dashed')
+  geom_line(y=true_b0_mu, col="red", lty="dashed")
 
 p2 <- ggplot(data=res, aes(x=n, y=mean_b1_mu)) + 
   geom_line() + 
   labs(x="n", y=expression(hat(beta)[1]),
        title=expression("Mean for the slope in" ~ mu)) +
   ylim(true_b1_mu, -2.85) +
-  geom_line(y=true_b1_mu, col='red', lty='dashed')
+  geom_line(y=true_b1_mu, col="red", lty="dashed")
 
 p3 <- ggplot(data=res, aes(x=n, y=mean_b0_si)) + 
   geom_line() + 
   labs(x="n", y=expression(hat(gamma)[0]),
        title=expression("Mean for the intercept in" ~ sigma)) +
   #ylim(true_g0_si-2.0, true_g0_si+2.0) +
-  geom_line(y=true_g0_si, col='red', lty='dashed')
+  geom_line(y=true_g0_si, col="red", lty="dashed")
 
 p4 <- ggplot(data=res, aes(x=n, y=mean_b1_si)) + 
   geom_line() + 
   labs(x="n", y=expression(hat(gamma)[1]),
        title=expression("Mean for the slope in" ~ sigma)) +
   #ylim(true_g1_si-0.5, true_g1_si+0.5) +
-  geom_line(y=true_g1_si, col='red', lty='dashed')
+  geom_line(y=true_g1_si, col="red", lty="dashed")
 
 mean2 <- grid.arrange(p1, p2, p3, p4, nrow=2, ncol=2)
 mean2
-ggsave(filename="case2_mean.pdf", 
+ggsave(filename="Figures/case2_mean.pdf", 
        plot=mean2, 
        width=10, height=8)
 
@@ -167,7 +161,7 @@ p4 <- ggplot(data=res, aes(x=n, y=mse_b1_si)) +
 
 mse2 <- grid.arrange(p1, p2, p3, p4, nrow=2, ncol=2)
 mse2
-ggsave(filename="case2_mse.pdf", 
+ggsave(filename="Figures/case2_mse.pdf", 
        plot=mse2, 
        width=10, height=8)
 
