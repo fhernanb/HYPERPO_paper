@@ -33,11 +33,12 @@ parSim(
   ### SIMULATION CONDITIONS
   mu = c(3, 7),
   sigma = c(0.5, 1, 1.5),
-  n = c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000),
+  #n = c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000),
+  n = c(2000, 3000, 4000, 5000),
   
-  reps = 500,                                 # Repetitions
+  reps = 90,                                 # Repetitions
   write = TRUE,                              # Writing to a file
-  name = "Simulations/sim_HP1_without_cov_07", # Name of the file
+  name = "Simulations/sim_HP1_without_cov_09", # Name of the file
   nCores = 1,                                # Number of cores to use
   
   expression = {
