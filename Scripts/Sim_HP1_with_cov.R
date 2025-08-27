@@ -45,7 +45,7 @@ parSim(
   
   reps = 100,                              # Repetitions
   write = TRUE,                           # Writing to a file
-  name = "Simulations/simu_HP1_with_cov_03", # Name of the file
+  name = "Simulations/sim_HP1_with_cov_04", # Name of the file
   nCores = 1,                             # Number of cores to use
   
   expression = {
@@ -65,7 +65,7 @@ parSim(
 )
 
 # To load the results -----------------------------------------------------
-archivos <- list.files(pattern = "^simu_HP1_with_cov.*\\.txt$", 
+archivos <- list.files(pattern = "^sim_HP1_with_cov.*\\.txt$", 
                        path="Simulations",
                        full.names = TRUE)
 lista_datos <- lapply(archivos, read.table, header = TRUE, 
@@ -104,6 +104,8 @@ res <- datos %>%
             mse_b1_si=mean((true_g1_si - g1_si_hat)^2, trim=0.15),
             nobs=n())
 
+res
+
 # Mean -----------------------------------------------------
 p1 <- ggplot(data=res, aes(x=n, y=mean_b0_mu)) + 
   geom_line() + 
@@ -116,7 +118,7 @@ p2 <- ggplot(data=res, aes(x=n, y=mean_b1_mu)) +
   geom_line() + 
   labs(x="n", y=expression(hat(beta)[1]),
        title=expression("Mean for the slope in" ~ mu)) +
-  ylim(true_b1_mu, -2.85) +
+  ylim(true_b1_mu, -2.70) +
   geom_line(y=true_b1_mu, col="red", lty="dashed")
 
 p3 <- ggplot(data=res, aes(x=n, y=mean_b0_si)) + 

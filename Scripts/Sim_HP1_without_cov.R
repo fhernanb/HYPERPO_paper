@@ -36,9 +36,9 @@ parSim(
   #n = c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000),
   n = c(2000, 3000, 4000, 5000),
   
-  reps = 90,                                 # Repetitions
+  reps = 100,                                 # Repetitions
   write = TRUE,                              # Writing to a file
-  name = "Simulations/sim_HP1_without_cov_09", # Name of the file
+  name = "Simulations/sim_HP1_without_cov_12", # Name of the file
   nCores = 1,                                # Number of cores to use
   
   expression = {
@@ -144,8 +144,8 @@ figs_case1_mean <- function(res, true_mu, k) {
          width=6, height=8)
 }
 
-figs_case1_mean(res, true_mu=3, k=0.05)
-figs_case1_mean(res, true_mu=7, k=0.15)
+figs_case1_mean(res, true_mu=3, k=0.10)
+figs_case1_mean(res, true_mu=7, k=0.20)
 
 # MSE -----------------------------------------------------
 
