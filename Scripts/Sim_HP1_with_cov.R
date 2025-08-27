@@ -25,7 +25,8 @@ simul_one <- function(size) {
   y <- rHYPERPO(n=size, mu=mu, sigma=sigma)
   mod <- NULL
   mod <- try(gamlss(y~x1, sigma.fo=~x2, family="HYPERPO",
-                    control=gamlss.control(n.cyc=2500, trace=FALSE)))
+                    control=gamlss.control(n.cyc=2500, trace=FALSE)),
+             silent=TRUE)
   if (class(mod)[1] == "try-error")
     res <- rep(NA, 4)
   else
@@ -42,9 +43,9 @@ parSim(
   ### SIMULATION CONDITIONS
   n = c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000),
   
-  reps = 80,                              # Repetitions
+  reps = 100,                              # Repetitions
   write = TRUE,                           # Writing to a file
-  name = "Simulations/simul_with_cov_03", # Name of the file
+  name = "Simulations/simu_HP1_with_cov_03", # Name of the file
   nCores = 1,                             # Number of cores to use
   
   expression = {
@@ -64,7 +65,7 @@ parSim(
 )
 
 # To load the results -----------------------------------------------------
-archivos <- list.files(pattern = "^simul_with_cov.*\\.txt$", 
+archivos <- list.files(pattern = "^simu_HP1_with_cov.*\\.txt$", 
                        path="Simulations",
                        full.names = TRUE)
 lista_datos <- lapply(archivos, read.table, header = TRUE, 
