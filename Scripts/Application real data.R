@@ -56,14 +56,17 @@ Rsq(mod3)
 
 wp(mod3)
 
+# Fitting the model using gamlss2
+library(gamlss2)
+
 f <- numbids ~ leglrest+rearest+finrest+whtknght+bidprem+insthold+
   size+I(size^2)+regulatn | rearest+finrest+bidprem+regulatn
-
-library(gamlss2)
 
 mod3 <- gamlss2(f, family=HYPERPO2, data=Bids)
 
 summary(mod3)
+BIC(mod3)
+Rsq(mod3)
 
 
 # Residual analysis
