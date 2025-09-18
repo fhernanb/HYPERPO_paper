@@ -48,25 +48,27 @@ mod3 <- gamlss(numbids~leglrest+rearest+finrest+whtknght+
                sigma.fo=~rearest+finrest+bidprem+regulatn,
                family=HYPERPO2, 
                data=Bids,
-               control=gamlss.control(n.cyc=500, trace=TRUE))
+               control=gamlss.control(n.cyc=150, trace=TRUE))
 
 summary(mod3)
 BIC(mod3)
 Rsq(mod3)
+logLik(mod3)
 
 wp(mod3)
 
-# Fitting the model using gamlss2
-library(gamlss2)
-
+# Using gamlss2
 f <- numbids ~ leglrest+rearest+finrest+whtknght+bidprem+insthold+
   size+I(size^2)+regulatn | rearest+finrest+bidprem+regulatn
+
+library(gamlss2)
 
 mod3 <- gamlss2(f, family=HYPERPO2, data=Bids)
 
 summary(mod3)
 BIC(mod3)
 Rsq(mod3)
+logLik(mod3)
 
 
 # Residual analysis
@@ -84,29 +86,13 @@ qqPlot(res_mod3, dist="norm", mean=0, sd=1,
 dev.off()
 
 
-# Creando tabla latex para modelo 3
+# Creating latex table for model 3
 t3 <- summary(mod3)
 
 library(xtable)
 xtable(t3, digits=4)
 
-# Ajustando con metodo mixto
-mod9 <- gamlss(numbids~leglrest+rearest+finrest+whtknght+
-                 bidprem+insthold+
-                 size+I(size^2)+regulatn,
-               sigma.fo=~rearest+finrest+bidprem+regulatn,
-               family=HYPERPO2, 
-               data=Bids,
-               method=mixed(),
-               control=gamlss.control(n.cyc=150, trace=TRUE))
-
-mod9 <- refit(mod9)
-
-summary(mod9)
-BIC(mod9)
-Rsq(mod9)
-
-
+# The DGLMExtPois package
 library(DGLMExtPois)
 fit <- glm.hP(formula.mu = numbids ~ leglrest+rearest+finrest+whtknght+
                 bidprem+insthold+
@@ -122,24 +108,21 @@ coef(fit)$mean_model
 coef(fit)$dispersion_model
 
 
-# Selection variables
-mod0 <- gamlss(numbids~1,
+# Fitting model with only significative variables
+
+mod4 <- NULL
+mod4 <- gamlss(numbids~rearest+finrest+whtknght+
+                 bidprem+insthold+
+                 size+I(size^2)+regulatn,
+               sigma.fo=~rearest+finrest+bidprem+regulatn,
                family=HYPERPO2, 
                data=Bids,
                control=gamlss.control(n.cyc=500, trace=TRUE))
 
-summary(mod0)
+summary(mod4)
+BIC(mod4)
+Rsq(mod4)
+logLik(mod4)
 
-full_model <- formula(numbids~leglrest+rearest+finrest+whtknght+bidprem+insthold+
-                        size+I(size^2)+regulatn)
-
-final <- stepGAICAll.B(object=mod0, 
-                       scope=list(lower=~1, upper=full_model),
-                       sigma.scope=list(lower=~1, upper=full_model))
-
-summary(final)
-BIC(final)
-Rsq(final)
-plot(final)
-wp(final)
+wp(mod4)
 

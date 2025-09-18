@@ -10,9 +10,9 @@ library(DiscreteDists)
 
 # Function to obtain mu_hat and sigma_hat for a fixed value of n
 simul_one <- function(size, true_mu, true_sigma) {
-  y <- rHYPERPO(n=size, mu=true_mu, sigma=true_sigma)
+  y <- rHYPERPO2(n=size, mu=true_mu, sigma=true_sigma)
   mod <- NULL
-  mod <- try(gamlss(y~1, sigma.fo=~1, family="HYPERPO",
+  mod <- try(gamlss(y~1, sigma.fo=~1, family="HYPERPO2",
                 control=gamlss.control(n.cyc=2500, trace=FALSE)))
   if (class(mod)[1] == "try-error") {
     res <- c(NA, NA)
@@ -33,11 +33,12 @@ parSim(
   ### SIMULATION CONDITIONS
   mu = c(3, 7),
   sigma = c(0.5, 1, 1.5),
-  #n = c(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000),
-  n = 50,
-  reps = 2000,                                 # Repetitions
+  
+  n = c(50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000),
+
+  reps = 100,                                 # Repetitions
   write = TRUE,                              # Writing to a file
-  name = "Simulations/sim_HP1_without_cov_08", # Name of the file
+  name = "Simulations/case1_13", # Name of the file
   nCores = 1,                                # Number of cores to use
   
   expression = {
@@ -55,7 +56,7 @@ parSim(
 )
 
 # To load the results -----------------------------------------------------
-archivos <- list.files(pattern = "^sim_HP1_without.*\\.txt$", 
+archivos <- list.files(pattern = "^case1.*\\.txt$", 
                        path="Simulations",
                        full.names = TRUE)
 archivos
@@ -75,14 +76,15 @@ mean(num$nn)
 min(num$nn)
 
 # To obtain the metrics mean and MSE
-trim <- 0
+trim <- 0.10
 res <- datos %>% 
   group_by(n, mu, sigma) %>% 
-  summarise(mean_mu=mean(mu_hat, trim=trim),
-            mean_sigma=mean(sigma_hat, trim=trim),
-            mse_mu=mean((mu - mu_hat)^2, trim=trim),
-            mse_sigma=mean((sigma - sigma_hat)^2, trim=trim),
-            nobs=n())
+  summarise(mean_mu=mean(mu_hat, trim=trim, na.rm=TRUE),
+            mean_sigma=mean(sigma_hat, trim=trim, na.rm=TRUE),
+            mse_mu=mean((mu - mu_hat)^2, trim=trim, na.rm=TRUE),
+            mse_sigma=mean((sigma - sigma_hat)^2, trim=trim, na.rm=TRUE),
+            nobs=n()
+            )
 
 res
 
@@ -145,8 +147,8 @@ figs_case1_mean <- function(res, true_mu, k) {
          width=6, height=8)
 }
 
-figs_case1_mean(res, true_mu=3, k=0.20)
-figs_case1_mean(res, true_mu=7, k=0.20)
+figs_case1_mean(res, true_mu=3, k=0.1)
+figs_case1_mean(res, true_mu=7, k=0.5)
 
 # MSE -----------------------------------------------------
 

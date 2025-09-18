@@ -51,7 +51,7 @@ var(y)
 # Mean and variance
 mean_var_hp(mu=5.5, sigma=0.1)
 
-# Estimating the paramertes
+# Estimating the parameters
 library(gamlss)
 mod1 <- gamlss(y ~ 1, family=HYPERPO)
 summary(mod1)
@@ -74,4 +74,46 @@ mod2 <- gamlss(y~x1, sigma.fo=~x2, family=HYPERPO,
                data=dataset)
 
 summary(mod2)
+
+# Examples for HYPERPO - second parameterization ---------------------------
+
+library(DiscreteDists)
+
+dHYPERPO2(x=0:10, mu=5.5, sigma=0.1)
+
+dHYPERPO2(x=0:10, mu=5.5, sigma=1)
+dpois(x=0:10, lambda=5.5)
+
+set.seed(1234)
+y <- rHYPERPO2(n=500, mu=5.5, sigma=0.1)
+y[1:15]
+
+# Empirical mean and variance
+mean(y)
+var(y)
+
+# Estimating the parameters
+library(gamlss)
+mod1 <- gamlss(y ~ 1, family=HYPERPO2)
+summary(mod1)
+
+# A function to simulate a data set with Y ~ HYPERPO2
+gendat <- function(n) {
+  x1 <- runif(n)
+  x2 <- runif(n)
+  mu    <- exp(1.21 - 3 * x1)
+  sigma <- exp(1.26 - 2 * x2)
+  y <- rHYPERPO2(n=n, mu=mu, sigma=sigma)
+  data.frame(y=y, x1=x1, x2=x2)
+}
+
+set.seed(1234)
+dataset <- gendat(n=200)
+
+mod2 <- gamlss(y~x1, sigma.fo=~x2, family=HYPERPO2, 
+               control=gamlss.control(n.cyc=50),
+               data=dataset)
+
+summary(mod2)
+
 
