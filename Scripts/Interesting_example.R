@@ -1,3 +1,4 @@
+# This script contains an example proposed by a reviewer
 
 library(DiscreteDists)
 library(gamlss)

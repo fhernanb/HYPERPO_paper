@@ -26,7 +26,7 @@ simul_one <- function(size, true_mu, true_sigma) {
 
 # To perform the simulation -----------------------------------------------
 
-library("parSim")
+library(parSim)
 
 # Instruction to simulate
 parSim(

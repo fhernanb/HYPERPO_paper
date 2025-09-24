@@ -45,7 +45,7 @@ simul_one <- function(size) {
 
 # To perform the simulation -----------------------------------------------
 
-library("parSim")
+library(parSim)
 
 # Instruction to simulate 
 parSim(
