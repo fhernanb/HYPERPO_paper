@@ -3,5 +3,5 @@
 This is the supplementary material for the "Hyper-Poisson Regression Modeling via GAMLSS" paper.
 
 <figure>
-  <img src="Figures/plot_hyperpo.pdf" alt="" width="804" height="328">
+  <img src="Figures/ecard.png" alt="" width="800" height="470">
 </figure>
